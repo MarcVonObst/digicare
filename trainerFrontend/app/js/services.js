@@ -87,20 +87,21 @@ angular
 										.error(function(data, status) { // TODO do something
 												}); // error
 							};// onTrainingCreationStatusCreatedCall
-
+							trainerService.getLastTrainingUri = function(acceptFormat) {
+								return "http://my.office.hikuku.de/api/v1/users/" + userId + "/trainings?last&" + "acceptFormat=" + acceptFormat;
+							};
 							// public function that does something with the training
-							trainerService.doWithTraining = function(showJson, showMp3) { // get the id of the last training and call the status resource
-								$http.get("http://my.office.hikuku.de/api/v1/users/" + userId + "/trainings?last", {}, {
+							trainerService.doWithTraining = function(showTraining) { // get the id of the last training and call the status resource
+
+								$http( {
+									method : 'GET',
+									url : trainerService.getLastTrainingUri("json"),
 									headers : {
-										'Accept' : "application/json"
+										'Accept' : 'application/json'
 									}
 								}).success(function(response, status) {
 									if (status == 200) {
-										// http://localhost:12345/v1/users/52038/trainings/31
-										doWhenTrainingReady(response.trainingResource, showJson, "application/json");
-									} else {
-										$log.error("No last training?");
-										// TODO error, no last training?
+										showTraining(response);
 									}
 								})// success
 										.error(function(data, status) { //
@@ -109,32 +110,6 @@ angular
 							};// doWithTraining
 
 							var TRAINING_POLL_TIME_MS = 4000;
-
-							var doWhenTrainingReady = function(lastTrainingUri, callOnReady, acceptMimeType) {
-								$log.info("acceptedMimeType: " + acceptMimeType);
-								$http.get(lastTrainingUri, {
-									headers : {
-										'Accept' : acceptMimeType
-									}
-								}).success(function(resultContent, status, headers) {
-									if (status === 204) { // NO CONTENT -> exists, but not ready yet
-											// loop that keeps calling the api until it succeeds
-											_.delay(doWhenTrainingReady, TRAINING_POLL_TIME_MS, lastTrainingUri, callOnReady, acceptMimeType);
-										} else if (status == 200) {
-											callOnReady(resultContent);
-										} else if (status == 303) { // redirect
-											if (acceptMimeType === "audio/mpeg") {
-												callOnReady(headers.redirectionUrl);
-											} else {
-												$log.error("Redirection on json content type? This is only defined for mp3.");
-												doWhenTrainingReady(resultContent, callOnReady, acceptMimeType);
-											}
-										}
-									})// success
-										.error(function(data, status) {
-											// TODO do something
-											});
-							};// doWhenTrainingReady
 
 							trainerService.testCall = function(param) {
 								$http.get(param);
