@@ -1,0 +1,46 @@
+
+
+for the static html files to be able to access the rest api, they have to have the same origin, so that the calls are not
+blocked by the server or the browser.
+
+We achieve this by letting both be served by apache mod-proxy, which redirects calls to one server to an other one
+
+
+  sudo apt-get install libapache2-mod-proxy-html
+  sudo a2enmod proxy proxy_html proxy_http
+
+
+in the file  /etc/apache2/mods-available/proxy.conf
+put:
+------------------------------------------------------------------------
+<IfModule mod_proxy.c>
+[...]
+	ProxyPass /api http://localhost:12345
+	ProxyPassReverse /api http://localhost:12345
+
+	ProxyPass /app http://localhost:8000/app
+	ProxyPassReverse /app http://localhost:8000/app
+
+        <Proxy *>
+                AddDefaultCharset off
+                Order deny,allow
+			  		 Deny from all
+                Allow from all
+        </Proxy>
+[...]
+
+</IfModule>
+
+------------------------------------------------
+
+
+then restart apache
+sudo /etc/init.d/apache2 restart
+
+
+now apache points /api to localhost, port 12345, which is the port restlet runs on
+and /app to 8000, which is the port the node.js server from angular runs on. 
+the app directory with the static htmls could also be served by apache, then we would not need
+a rewrite for that url.
+
+
