@@ -1,3 +1,17 @@
+//TODO Put this into the new module.
+function isIpad() {
+
+}
+
+// TODO Put this into the new commonUtils module.
+function isiPhone() {
+	return (
+	// Detect iPhone
+	(navigator.platform.indexOf("iPhone") != -1) ||
+	// Detect iPod
+	(navigator.platform.indexOf("iPod") != -1));
+}
+
 angular.module('YtPlayerTest', []).directive(
 		"ytPlayer",
 		function($log, $window, $http) {
@@ -29,65 +43,69 @@ angular.module('YtPlayerTest', []).directive(
 						videoId : videoId,
 						events : {
 							'onReady' : function onPlayerReady(event) {
-								//event.target.playVideo();
-								
-							},
-							'onStateChange' : function onStateChange(event) {
-								scope.playerStatus = event.data;
-								if (scope.playerStatus === 0) {
-									//alert("player ready!");
-									//scope.player.playVideo();
-								}
-//								if (event.data === -1){
-//									//Unstarted
-//									//alert("-1");
-//									//scope.contentUnavailable = true;
-//								}
-//								if (event.data === 0){
-//									//Ended
-//									alert("0");
-//									//scope.contentUnavailable = true;
-//								}
-//								//For IOS
-//								if (event.data === 1){
-//									//Playing
-//									alert("1");
-////									scope.contentUnavailable = false;
-////									scope.hasPlayerPlayedContent = true;
-//								}
-//								if (event.data === 2){
-									//Paused
-//									//TODO Remove this condition
-//									alert("2");
-//								}
-//								if (event.data === 3){
-									//Buffering () 
-//									//TODO Remove this condition
-//									alert("3");
-//								}
-//
-//								if (event.data === 4){
-//									//TODO Remove this condition
-//									alert("4");
-//								}
-//								if (event.data === 5){
-////									scope.contentUnavailable = false;
-//									alert("5");
-////									scope.hasPlayerPlayedContent = true;
-////									if (!scope.contentUnavailable) { 
-//										event.target.playVideo();
-////									}
-//								}
+								// event.target.playVideo();
+
+						},
+						'onStateChange' : function onStateChange(event) {
+							scope.playerStatus = event.data;
+							if (scope.playerStatus === 0) {
+								// alert("player ready!");
+							// scope.player.playVideo();
 							}
+						// if (event.data === -1){
+						// //Unstarted
+						// //alert("-1");
+						// //scope.contentUnavailable = true;
+						// }
+						// if (event.data === 0){
+						// //Ended
+						// alert("0");
+						// //scope.contentUnavailable = true;
+						// }
+						// //For IOS
+						// if (event.data === 1){
+						// //Playing
+						// alert("1");
+						// // scope.contentUnavailable = false;
+						// // scope.hasPlayerPlayedContent = true;
+						// }
+						// if (event.data === 2){
+						// Paused
+						// //TODO Remove this condition
+						// alert("2");
+						// }
+						// if (event.data === 3){
+						// Buffering ()
+						// //TODO Remove this condition
+						// alert("3");
+						// }
+						//
+						// if (event.data === 4){
+						// //TODO Remove this condition
+						// alert("4");
+						// }
+						// if (event.data === 5){
+						// // scope.contentUnavailable = false;
+						// alert("5");
+						// // scope.hasPlayerPlayedContent = true;
+						// // if (!scope.contentUnavailable) {
+						// event.target.playVideo();
+						// // }
+						// }
+					}
 						}
 					});
 				} else {
-//					if (!scope.contentUnavailable) {
-//						scope.hasPlayerLoadedContend = false;
-//					}
-					
-					if (scope.playerStatus === 0 || scope.playerStatus === 1 || scope.playerStatus === 2 ) {
-						//alert("Current player status: " + scope.playerStatus);
+					// if (!scope.contentUnavailable) {
+					// scope.hasPlayerLoadedContend = false;
+					// }
+
+					if (scope.playerStatus === 0 || scope.playerStatus === 1
+							|| scope.playerStatus === 2) {
+
+						alert($.browser);
+						// alert("Current player status: " +
+						// scope.playerStatus);
 						scope.player.cueVideoById(videoId);
 						scope.player.playVideo();
 					}
@@ -108,6 +126,7 @@ angular.module('YtPlayerTest', []).directive(
 					$http.jsonp('http://www.youtube.com/iframe_api');
 				}
 			};
+
 		}
 			};
 		});
