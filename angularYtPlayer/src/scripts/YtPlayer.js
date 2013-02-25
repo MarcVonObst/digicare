@@ -1,135 +1,86 @@
-//TODO Put this into the new module.
-function isIpad() {
+angular
+		.module('YtPlayerTest', [])
+		.directive(
+				"ytPlayer",
+				function($log, $window, $http) {
+					return {
+						restrict : "E",
+						templateUrl : 'ytPlayerTempleate.html',
+						link : function postLink(scope, element, attrs) {
+							//We are clovering the scope... maybe the scope should only expose the playVideoById(...) method
+							//What's the angular best practice for this ??
+							scope.player = null;
+							$log.info("Rendering test yt-player with angular");
+							var playerInstanceId = element.attr('id') + "_iframeContent";
+							element.children('iframe').attr('id', playerInstanceId);
+							
 
-}
-
-// TODO Put this into the new commonUtils module.
-function isiPhone() {
-	return (
-	// Detect iPhone
-	(navigator.platform.indexOf("iPhone") != -1) ||
-	// Detect iPod
-	(navigator.platform.indexOf("iPod") != -1));
-}
-
-angular.module('YtPlayerTest', []).directive(
-		"ytPlayer",
-		function($log, $window, $http) {
-			return {
-				restrict : "E",
-				templateUrl : 'ytPlayerTempleate.html',
-				link : function postLink(scope, element, attrs) {
-					scope.player = null;
-					scope.hasPlayerPlayedContent = false;
-					scope.hasPlayerLoadedContent = true;
-					$log.info("Rendering test yt-player with angular");
-					var playerInstanceId = null;
-
-					function playVideoInElement(element, videoId) {
-						// We create the html that will actually have
-				// it's markup torn apart by the youtube api
-				// playerInstanceId = element.attr("id") +
-				// "_InstanceId";
-				//				
-				// element.html("<div id='" + playerInstanceId +
-				// "'></div>");
-				// if (scope.player === null) {
-				// scope.player = new YT.Player(playerInstanceId, {
-				// videoId: videoId
-				// });
-				// }
-				if (scope.player === null) {
-					scope.player = new YT.Player("videoPlayerWrapperId", {
-						videoId : videoId,
-						events : {
-							'onReady' : function onPlayerReady(event) {
-								// event.target.playVideo();
-
-						},
-						'onStateChange' : function onStateChange(event) {
-							scope.playerStatus = event.data;
-							if (scope.playerStatus === 0) {
-								// alert("player ready!");
-							// scope.player.playVideo();
+							function playVideoInElement(element, videoId) {
+								if (scope.player === null) {
+									scope.player = new YT.Player(
+											"playerInstanceId",
+											{
+												videoId : videoId,
+												events : {
+													'onReady' : function onPlayerReady(
+															event) {
+														event.target
+																.playVideo();
+													},
+													'onStateChange' : function onStateChange(
+															event) {
+														scope.playerStatus = event.data;
+														if (scope.playerStatus === 0) {
+															// Ended
+															scope.player
+																	.playVideo();
+														}
+														if (event.data === 5) {
+															// Video Cued
+															scope.player
+																	.playVideo();
+														}
+													}
+												}
+											});
+								} else {
+									scope.player.cueVideoById(videoId);
+									scope.player.playVideo();
+								}
 							}
-						// if (event.data === -1){
-						// //Unstarted
-						// //alert("-1");
-						// //scope.contentUnavailable = true;
-						// }
-						// if (event.data === 0){
-						// //Ended
-						// alert("0");
-						// //scope.contentUnavailable = true;
-						// }
-						// //For IOS
-						// if (event.data === 1){
-						// //Playing
-						// alert("1");
-						// // scope.contentUnavailable = false;
-						// // scope.hasPlayerPlayedContent = true;
-						// }
-						// if (event.data === 2){
-						// Paused
-						// //TODO Remove this condition
-						// alert("2");
-						// }
-						// if (event.data === 3){
-						// Buffering ()
-						// //TODO Remove this condition
-						// alert("3");
-						// }
-						//
-						// if (event.data === 4){
-						// //TODO Remove this condition
-						// alert("4");
-						// }
-						// if (event.data === 5){
-						// // scope.contentUnavailable = false;
-						// alert("5");
-						// // scope.hasPlayerPlayedContent = true;
-						// // if (!scope.contentUnavailable) {
-						// event.target.playVideo();
-						// // }
-						// }
-					}
+							scope.$watch("videoId", function(value) {
+								videoId = value;
+								scope.playVideoById(videoId);
+							});
+							scope.playVideoById = function(videoId) {
+								if (typeof (YT) != 'undefined'
+										&& typeof (YT.Player) != 'undefined') {
+									playVideoInElement(element, videoId);
+								} else {
+									$window.onYouTubeIframeAPIReady = function() {
+										playVideoInElement(element, videoId);
+									};
+									$http
+											.jsonp('http://www.youtube.com/iframe_api');
+								}
+							};
+
 						}
-					});
-				} else {
-					// if (!scope.contentUnavailable) {
-					// scope.hasPlayerLoadedContend = false;
-					// }
-
-					if (scope.playerStatus === 0 || scope.playerStatus === 1
-							|| scope.playerStatus === 2) {
-
-						alert($.browser);
-						// alert("Current player status: " +
-						// scope.playerStatus);
-						scope.player.cueVideoById(videoId);
-						scope.player.playVideo();
-					}
-				}
-			}
-			scope.$watch("videoId", function(value) {
-				videoId = value;
-				scope.playVideoById(videoId);
-			});
-			scope.playVideoById = function(videoId) {
-				if (typeof (YT) != 'undefined'
-						&& typeof (YT.Player) != 'undefined') {
-					playVideoInElement(element, videoId);
-				} else {
-					$window.onYouTubeIframeAPIReady = function() {
-						playVideoInElement(element, videoId);
 					};
-					$http.jsonp('http://www.youtube.com/iframe_api');
-				}
-			};
+				});
 
-		}
-			};
-		});
+
+/**
+ * A youtube that doesn't work on ios.
+ */
+//angular.module('YtPlayerTest', [], function($provide) {
+//	  $provide.factory('youtube', function() {
+//	    var shinyNewServiceInstance;
+//	    //factory function body that constructs shinyNewServiceInstance
+//	    return shinyNewServiceInstance;
+//	  });
+//	});
+
 
 function YtPlayer($scope) {
 
