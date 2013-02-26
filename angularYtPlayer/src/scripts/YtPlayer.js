@@ -1,86 +1,110 @@
-angular
+var myModule = angular
 		.module('YtPlayerTest', [])
-		.directive(
-				"ytPlayer",
-				function($log, $window, $http) {
-					return {
-						restrict : "E",
-						templateUrl : 'ytPlayerTempleate.html',
-						link : function postLink(scope, element, attrs) {
-							//We are clovering the scope... maybe the scope should only expose the playVideoById(...) method
-							//What's the angular best practice for this ??
-							scope.player = null;
-							$log.info("Rendering test yt-player with angular");
-							var playerInstanceId = element.attr('id') + "_iframeContent";
-							element.children('iframe').attr('id', playerInstanceId);
-							
+		.factory(
+				'youtube',
+				[
+						'$window',
+						'$http',
+						function($window, $http) {
+							// We are hardcoding the youtube factory into our
+							// module.
+							// TODO Move this out of here.
 
-							function playVideoInElement(element, videoId) {
-								if (scope.player === null) {
-									scope.player = new YT.Player(
-											"playerInstanceId",
-											{
-												videoId : videoId,
-												events : {
-													'onReady' : function onPlayerReady(
-															event) {
-														event.target
-																.playVideo();
-													},
-													'onStateChange' : function onStateChange(
-															event) {
-														scope.playerStatus = event.data;
-														if (scope.playerStatus === 0) {
-															// Ended
-															scope.player
-																	.playVideo();
-														}
-														if (event.data === 5) {
-															// Video Cued
-															scope.player
-																	.playVideo();
-														}
-													}
-												}
-											});
-								} else {
-									scope.player.cueVideoById(videoId);
-									scope.player.playVideo();
-								}
-							}
-							scope.$watch("videoId", function(value) {
-								videoId = value;
-								scope.playVideoById(videoId);
-							});
-							scope.playVideoById = function(videoId) {
-								if (typeof (YT) != 'undefined'
-										&& typeof (YT.Player) != 'undefined') {
-									playVideoInElement(element, videoId);
-								} else {
-									$window.onYouTubeIframeAPIReady = function() {
+							// TODO get the scope out of here
+							return {
+								playVideoById : function(element, videoId) {
+									var playerInstanceId = element.attr('id')
+											+ "_iframeContent";
+									function playVideoInElement(element,
+											videoId) {
+										var playerIframe = element
+												.children('iframe');
+										playerIframe.attr('id',
+												playerInstanceId);
+
+										if (element.data('player') === undefined) {
+											element
+													.data(
+															'player',
+															new YT.Player(
+																	playerInstanceId,
+																	{
+																		videoId : videoId,
+																		events : {
+																			'onReady' : function onPlayerReady(
+																					event) {
+																				event.target
+																						.playVideo();
+																			},
+																			'onStateChange' : function onStateChange(
+																					event) {
+																				if (event.data === 0) {
+																					// Ended
+																					element
+																							.data(
+																									'player')
+																							.playVideo();
+																				}
+																				if (event.data === 5) {
+																					// Video
+																					// Cued
+																					element
+																							.data(
+																									'player')
+																							.playVideo();
+																				}
+																			}
+																		}
+																	}));
+										} else {
+											element.data('player')
+													.cueVideoById(videoId);
+											element.data('player').playVideo();
+										}
+									}
+
+									// TODO: Should this be window.YT ??
+									if (typeof (YT) != 'undefined'
+											&& typeof (YT.Player) != 'undefined') {
 										playVideoInElement(element, videoId);
-									};
-									$http
-											.jsonp('http://www.youtube.com/iframe_api');
+									} else {
+										// We initialize the markup otherwise
+										// the youtube api complains of a cross
+										// domain access and nothing works.
+										var ytIframeMarkup = "<iframe id='"
+												+ playerInstanceId
+												+ "' type='text/html' width='480' height='270'"
+												+ "src='http://www.youtube.com/embed/pgfDnflqMGA?enablejsapi=1&controls=0&autoplay=1&rel=0'"
+												+ "frameborder='0'></iframe>";
+										element.html(ytIframeMarkup);
+										$window.onYouTubeIframeAPIReady = function() {
+											playVideoInElement(element, videoId);
+										};
+										$http
+												.jsonp('http://www.youtube.com/iframe_api');
+									}
 								}
 							};
+						} ]).directive("ytPlayer", function($log, youtube) {
+			return {
+				restrict : "E",
+				link : function postLink(scope, element, attrs) {
+					// We are clovering the scope... maybe the scope should only
+					// expose the playVideoById(...) method
+					// What's the angular best practice for this ??
+					scope.player = null;
+					$log.info("Rendering test yt-player with angular");
 
-						}
+					scope.$watch("videoId", function(value) {
+						videoId = value;
+						youtube.playVideoById(element, videoId);
+					});
+					scope.playVideoById = function(videoId) {
+						youtube.playVideoById(element, videoId);
 					};
-				});
-
-
-/**
- * A youtube that doesn't work on ios.
- */
-//angular.module('YtPlayerTest', [], function($provide) {
-//	  $provide.factory('youtube', function() {
-//	    var shinyNewServiceInstance;
-//	    //factory function body that constructs shinyNewServiceInstance
-//	    return shinyNewServiceInstance;
-//	  });
-//	});
-
+				}
+			};
+		});
 
 function YtPlayer($scope) {
 
