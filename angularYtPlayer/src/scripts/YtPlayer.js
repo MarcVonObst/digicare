@@ -1,133 +1,108 @@
-//TODO Put this into the new module.
-function isIpad() {
+var myModule = angular
+		.module('YtPlayerTest', [])
+		.factory(
+				'youtube',
+				[
+						'$window',
+						'$http',
+						function($window, $http) {
+							// We are hardcoding the youtube factory into our
+							// module.
+							// TODO Move this out of here.
 
-}
+							// TODO get the scope out of here
+							return {
+								playVideoById : function(element, videoId) {
+									var playerInstanceId = element.attr('id')
+											+ "_iframeContent";
+									function playVideoInElement(element,
+											videoId) {
+										var playerIframe = element
+												.children('iframe');
+										playerIframe.attr('id',
+												playerInstanceId);
 
-// TODO Put this into the new commonUtils module.
-function isiPhone() {
-	return (
-	// Detect iPhone
-	(navigator.platform.indexOf("iPhone") != -1) ||
-	// Detect iPod
-	(navigator.platform.indexOf("iPod") != -1));
-}
+										if (element.data('player') === undefined) {
+											element
+													.data(
+															'player',
+															new YT.Player(
+																	playerInstanceId,
+																	{
+																		videoId : videoId,
+																		events : {
+																			'onReady' : function onPlayerReady(
+																					event) {
+																				event.target
+																						.playVideo();
+																			},
+																			'onStateChange' : function onStateChange(
+																					event) {
+																				if (event.data === 0) {
+																					// Ended
+																					element
+																							.data(
+																									'player')
+																							.playVideo();
+																				}
+																				if (event.data === 5) {
+																					// Video
+																					// Cued
+																					element
+																							.data(
+																									'player')
+																							.playVideo();
+																				}
+																			}
+																		}
+																	}));
+										} else {
+											element.data('player')
+													.cueVideoById(videoId);
+											element.data('player').playVideo();
+										}
+									}
 
-angular.module('YtPlayerTest', []).directive(
-		"ytPlayer",
-		function($log, $window, $http) {
+									// TODO: Should this be window.YT ??
+									if (typeof (YT) != 'undefined'
+											&& typeof (YT.Player) != 'undefined') {
+										playVideoInElement(element, videoId);
+									} else {
+										// We initialize the markup otherwise
+										// the youtube api complains of a cross
+										// domain access and nothing works.
+										var ytIframeMarkup = "<iframe id='"
+												+ playerInstanceId
+												+ "' type='text/html' width='480' height='270'"
+												+ "src='http://www.youtube.com/embed/pgfDnflqMGA?enablejsapi=1&controls=0&autoplay=1&rel=0'"
+												+ "frameborder='0'></iframe>";
+										element.html(ytIframeMarkup);
+										$window.onYouTubeIframeAPIReady = function() {
+											playVideoInElement(element, videoId);
+										};
+										$http
+												.jsonp('http://www.youtube.com/iframe_api');
+									}
+								}
+							};
+						} ]).directive("ytPlayer", function($log, youtube) {
 			return {
 				restrict : "E",
-				templateUrl : 'ytPlayerTempleate.html',
 				link : function postLink(scope, element, attrs) {
+					// We are clovering the scope... maybe the scope should only
+					// expose the playVideoById(...) method
+					// What's the angular best practice for this ??
 					scope.player = null;
-					scope.hasPlayerPlayedContent = false;
-					scope.hasPlayerLoadedContent = true;
 					$log.info("Rendering test yt-player with angular");
-					var playerInstanceId = null;
 
-					function playVideoInElement(element, videoId) {
-						// We create the html that will actually have
-				// it's markup torn apart by the youtube api
-				// playerInstanceId = element.attr("id") +
-				// "_InstanceId";
-				//				
-				// element.html("<div id='" + playerInstanceId +
-				// "'></div>");
-				// if (scope.player === null) {
-				// scope.player = new YT.Player(playerInstanceId, {
-				// videoId: videoId
-				// });
-				// }
-				if (scope.player === null) {
-					scope.player = new YT.Player("videoPlayerWrapperId", {
-						videoId : videoId,
-						events : {
-							'onReady' : function onPlayerReady(event) {
-								// event.target.playVideo();
-
-						},
-						'onStateChange' : function onStateChange(event) {
-							scope.playerStatus = event.data;
-							if (scope.playerStatus === 0) {
-								// alert("player ready!");
-							// scope.player.playVideo();
-							}
-						// if (event.data === -1){
-						// //Unstarted
-						// //alert("-1");
-						// //scope.contentUnavailable = true;
-						// }
-						// if (event.data === 0){
-						// //Ended
-						// alert("0");
-						// //scope.contentUnavailable = true;
-						// }
-						// //For IOS
-						// if (event.data === 1){
-						// //Playing
-						// alert("1");
-						// // scope.contentUnavailable = false;
-						// // scope.hasPlayerPlayedContent = true;
-						// }
-						// if (event.data === 2){
-						// Paused
-						// //TODO Remove this condition
-						// alert("2");
-						// }
-						// if (event.data === 3){
-						// Buffering ()
-						// //TODO Remove this condition
-						// alert("3");
-						// }
-						//
-						// if (event.data === 4){
-						// //TODO Remove this condition
-						// alert("4");
-						// }
-						// if (event.data === 5){
-						// // scope.contentUnavailable = false;
-						// alert("5");
-						// // scope.hasPlayerPlayedContent = true;
-						// // if (!scope.contentUnavailable) {
-						// event.target.playVideo();
-						// // }
-						// }
-					}
-						}
+					scope.$watch("videoId", function(value) {
+						videoId = value;
+						youtube.playVideoById(element, videoId);
 					});
-				} else {
-					// if (!scope.contentUnavailable) {
-					// scope.hasPlayerLoadedContend = false;
-					// }
-
-					if (scope.playerStatus === 0 || scope.playerStatus === 1
-							|| scope.playerStatus === 2) {
-
-						alert($.browser);
-						// alert("Current player status: " +
-						// scope.playerStatus);
-						scope.player.cueVideoById(videoId);
-						scope.player.playVideo();
-					}
-				}
-			}
-			scope.$watch("videoId", function(value) {
-				videoId = value;
-				scope.playVideoById(videoId);
-			});
-			scope.playVideoById = function(videoId) {
-				if (typeof (YT) != 'undefined'
-						&& typeof (YT.Player) != 'undefined') {
-					playVideoInElement(element, videoId);
-				} else {
-					$window.onYouTubeIframeAPIReady = function() {
-						playVideoInElement(element, videoId);
+					scope.playVideoById = function(videoId) {
+						youtube.playVideoById(element, videoId);
 					};
-					$http.jsonp('http://www.youtube.com/iframe_api');
 				}
-			};
-
-		}
 			};
 		});
 
