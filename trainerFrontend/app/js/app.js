@@ -10,14 +10,14 @@ var trainerApp = angular.module('trainerApp', [ 'ui.bootstrap', 'trainerFilters'
 	// })
 	.when('/select', {
 		templateUrl : 'partials/select.html',
-		controller : SelectCtrl
+		controller : 'SelectCtrl'
 	}).when('/training', {
 		templateUrl : 'partials/training.html',
-		controller : TrainingCtrl
+		controller : 'TrainingCtrl'
 	})
 	// when('/feedback', {
 	// templateUrl : 'partials/feedback.html',
-	// controller : FeedbackCtrl
+	// controller : 'FeedbackCtrl'
 	// })
 	.otherwise({
 		redirectTo : '/training'
