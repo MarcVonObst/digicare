@@ -7,7 +7,7 @@ myApp.config(function($routeProvider) {
 	}).when('/page2', {
 		controller : Ctrl2,
 		templateUrl : 'page2.html'
-	}).otherwise( {
+	}).otherwise({
 		redirectTo : '/page1'
 	});
 });
@@ -17,7 +17,7 @@ function MyController($scope) {
 		// perform some action here...
 		// $route.current = ??
 		// 
-	}
+	};
 }
 
 function Ctrl1() {
@@ -27,6 +27,6 @@ function Ctrl2($scope, $location) {
 	$scope.doSomethingAndChangeRoute = function() {
 		alert('You\'re about to go back to page 1...');
 		$location.path('/page1');
-	}
+	};
 
 }

@@ -3,7 +3,7 @@
 /* jasmine specs for services go here */
 
 describe('userModule test', function() {
-	var auth;
+	var auth = null;
 
 	beforeEach(module('userServices'));
 	beforeEach(function() {
@@ -20,7 +20,7 @@ describe('userModule test', function() {
 });
 
 describe('trainerModule test', function() {
-	var httpMock, trainer, auth, getResult, postResult;
+	var httpMock = null, trainer = null, getResult = null, postResult = null;
 
 	beforeEach(module('trainerServices'));
 	beforeEach(module('userServices'));

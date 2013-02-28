@@ -11,7 +11,7 @@ function SelectCtrl($scope, $location, $http, trainer) {
 	$scope.training = 'Super Training';
 	$scope.createTraining = function() {
 		// TODO disable buttons, and show loading message (maybe in an overlay)
-		trainer.createTraining( {
+		trainer.createTraining({
 			"trainingLengthMinutes" : "20"
 		});
 		$location.path('/training');
@@ -54,21 +54,21 @@ function TrainingCtrl($scope, $routeParams, $log, trainer) {
 		};
 
 		// hide training loading message
-			// $http.get(training.mp3Uri)
-			// player.setMp3(training.mp3Uri);
-			soundManager.setup( {
-				url : 'lib/soundmanager/swf/',
-				flashVersion : 9, // optional: shiny features (default = 8)
-				useFlashBlock : false, // optionally, enable when you're ready to dive in
-				/**
-				 * read up on HTML5 audio support, if you're feeling adventurous. iPad/iPhone and devices without flash installed will always attempt to use it.
-				 */
-				onready : function() {
-					// Ready to use; soundManager.createSound() etc. can now be called.
+		// $http.get(training.mp3Uri)
+		// player.setMp3(training.mp3Uri);
+		soundManager.setup({
+			url : 'lib/soundmanager/swf/',
+			flashVersion : 9, // optional: shiny features (default = 8)
+			useFlashBlock : false, // optionally, enable when you're ready to dive in
+			/**
+			 * read up on HTML5 audio support, if you're feeling adventurous. iPad/iPhone and devices without flash installed will always attempt to use it.
+			 */
+			onready : function() {
+				// Ready to use; soundManager.createSound() etc. can now be called.
 			}
-			});
-
 		});
+
+	});
 
 	// }
 }
@@ -77,7 +77,7 @@ TrainingCtrl.$inject = [ '$scope', '$routeParams', '$log', 'trainer' ];
 
 function AudioPlayerCtrl($scope, $log) {
 	soundManager
-			.setup( {
+			.setup({
 				url : 'lib/swf/',
 				flashVersion : 9, // optional: shiny features (default = 8)
 				useFlashBlock : false, // optionally, enable when you're ready to dive in
@@ -86,7 +86,7 @@ function AudioPlayerCtrl($scope, $log) {
 				 */
 				onready : function() {
 					var mySound = soundManager
-							.createSound( {
+							.createSound({
 								id : 'aSound',
 								url : "http://love-my-oldies.freehomepage.com/music/Michael%20Jackson/01%20-%20Michael%20Jackson%20-%20Hold%20My%20hand%20(duet%20with%20akon)%20(produced%20by%20akon%20and%20giorgio%20tuinfort).mp3"
 							});
@@ -95,7 +95,17 @@ function AudioPlayerCtrl($scope, $log) {
 				},
 				ontimeout : function() {
 					// Hrmm, SM2 could not start. Missing SWF? Flash blocked? Show an error, etc.?
-			}
+				}
 			});
 }
 AudioPlayerCtrl.$inject = [ '$scope', '$log' ];
+
+function LoginController($scope, $http, authService) {
+	$scope.submit = function() {
+		$http.post('auth/login').success(function() {
+			authService.loginConfirmed();
+		});
+	};
+};
+
+AudioPlayerCtrl.$inject = [ '$scope', '$http', 'authService' ];
