@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html ng-app="YtPlayerTest">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Angular Youtube player</title>
+<script type="text/javascript" src="/app/lib/angular/angular.js"></script>
+<!--<script type="text/javascript" src="scripts/vendor/jquery-1.9.1.js"></script>-->
+<script type="text/javascript" src="js/YtPlayer.js"></script>
+</head>
+<body>
+<div ng-controller="YTPlayer2">
+	<h1>Test Angular YTPlayer</h1>
+	<video-player id="player" data-initial-video-data='{"yt": "QxT9lqCYIZ0"}'></video-player>
+	<a href="#" ng-click='playVideo({"yt": "VLkZvsp62iU"})'>Playme</a>
+	<input type="text" ng-model="videoId">
+</div>
+<div ng-controller="YTPlayer3">
+	<h1>Test Angular YTPlayer 2</h1>
+	<video-player id="player2"></video-player>
+	<a href="#" ng-click='playVideo({"yt": "VLkZvsp62iU"})'>Playme</a>
+	<input type="text" ng-model="videoId">
+</div>
+<!-- <div ng-controller="YTPlayer3"> -->
+<!-- 	<h1>Test Angular YTPlayer 2</h1> -->
+<!-- 	<video-player id="player3" data-initial-video-data='{"yt": "QxT9lqCYIZ0"}'></video-player> -->
+<!-- 	<a href="#" ng-click='playVideo({"yt": "VLkZvsp62iU"})'>Playme</a> -->
+<!-- 	<input type="text" ng-model="videoId"> -->
+<!-- </div> -->
+</body>
+</html>
