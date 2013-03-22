@@ -1,0 +1,47 @@
+<div class="container-fluid">
+<div class="row-fluid">
+<div class="span4"><!--Sidebar content-->
+
+<audio controls>
+  <source src="{{trainingMp3Url}}" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+</div>
+<div class="span4"><!--Body content-->
+
+ <accordion close-others="true">
+    <accordion-group heading="{{section.name}}" ng-repeat="section in trainingSections">
+      		<div  class="exercises">
+				<ul>
+					<li ng-repeat="ex in section.exercises" exercise-uid="{{ex.uniqueName}}">
+						<p>{{ex.name}}</p>
+					</li>	
+				</ul>
+			</div>
+    </accordion-group>
+    
+  </accordion>
+
+
+<div>
+<h1>TrainingMp3Url</h1>
+<a href="{{trainingMp3Url}}">training</a></div>
+
+<div>
+<h1>ExerciseTimings</h1>
+<div  class="timePoints">
+	<ul>
+		<li ng-repeat="ex in getAllExercises()" exercise-uid="{{ex.uniqueName}}">
+			<p>{{ex.name}}</p>
+			<span>{{ex.startTime}}</span>
+		</li>	
+	</ul>
+</div>
+</div>
+
+  
+</div>
+</div>
+</div>
+
